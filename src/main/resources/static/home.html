@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://unpkg.com/htmx.org@2.0.1"
+            integrity="sha384-QWGpdj554B4ETpJJC9z+ZHJcA/i59TyjxEPXiiUgN2WmTyV5OEZWCD6gQhgkdpB/"
+            crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/client-side-templates.js"></script>
+    <script src="https://unpkg.com/mustache@latest"></script>
+
+    <meta charset="UTF-8">
+    <title>Hi! Welcome!</title>
+</head>
+<body>
+hello
+<div hx-ext="client-side-templates">
+    <div hx-post="/mouse_entered" hx-trigger="mouseenter" mustache-template="foo">
+        [Here Mouse, Mouse!]
+    </div>
+    goodbye
+
+    <template id="foo">
+
+        <p> {{name}} with {{age}} is yours!</p>
+
+    </template>
+</div>
+</body>
+</html>
