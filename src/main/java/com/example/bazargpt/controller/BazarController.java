@@ -36,7 +36,7 @@ public class BazarController {
     }
 
     @PostMapping("/register")
-    public boolean register(@RequestBody User user) {
+    public boolean register(User user) {
         userService.createUser(user);
         return true;
     }

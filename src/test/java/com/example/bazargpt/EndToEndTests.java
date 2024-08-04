@@ -20,10 +20,12 @@ public class EndToEndTests {
 
     @Test
     public void testRegisteredUSerCanLogin() throws Exception {
-//        User user = new User();
+        User user = new User();
 
-        mockMvc.perform(post("/register").content("{\"userId\":1,\"email\":\"hassan@hassan.com\",\"password\":\"hassan\",\"firstName\":\"hassan\", \"lastName\":\"hassan@hassan.com\"}")
-                .contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(post("/register").param("email", "hassan@hassan.com")
+                        .param("password","hassan")
+                        .param("firstName","hassan")
+                                .param("lastName","hassan")
         ).andExpect(status().isOk());
 
         mockMvc.perform(post("/login").content("{\"email\":\"hassan@hassan.com\",\"password\":\"hassan\"}")
