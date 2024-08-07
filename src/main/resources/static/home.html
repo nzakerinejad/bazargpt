@@ -1,28 +1,56 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:hx-on="http://www.w3.org/1999/xhtml">
 <head>
-    <script src="https://unpkg.com/htmx.org@2.0.1"
-            integrity="sha384-QWGpdj554B4ETpJJC9z+ZHJcA/i59TyjxEPXiiUgN2WmTyV5OEZWCD6gQhgkdpB/"
-            crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/client-side-templates.js"></script>
-    <script src="https://unpkg.com/mustache@latest"></script>
-
     <meta charset="UTF-8">
-    <title>Hi! Welcome!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.0.2/tailwind.min.css"/>
+    <script src="https://unpkg.com/htmx.org@latest"></script>
+    <title>HTMX App</title>
 </head>
-<body>
-hello
-<div hx-ext="client-side-templates">
-    <div hx-post="/mouse_entered" hx-trigger="mouseenter" mustache-template="foo">
-        [Here Mouse, Mouse!]
+<body class="bg-gray-200">
+
+<div class="flex h-screen">
+    <!-- Side Navigation -->
+    <div class="w-56 bg-gray-800 text-white p-4">
+        <a href="/" class="block py-2 px-4 text-white hover:bg-gray-600">Home</a>
+        <a href="/users" class="block py-2 px-4 text-white hover:bg-gray-600">Users</a>
+        <a href="/posts" class="block py-2 px-4 text-white hover:bg-gray-600">Posts</a>
     </div>
-    goodbye
 
-    <template id="foo">
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col items-center justify-center p-4">
+        <div hx-ext="client-side-templates">
+            <div hx-post="/chat" hx-target="#search-results" >
 
-        <p> {{name}} with {{age}} is yours!</p>
+                <div id="search-results"></div>
+            </div>
 
-    </template>
+
+        <section>
+
+            <div hx-post="/greeting" hx-target="#online_count"  hx-trigger="load">
+            <h2></h2>
+            <p>
+
+                <span id="online_count"></span>
+            </p>
+            </div>
+
+            <div id="chat_messages"></div>
+
+            <form id="chat_form" hx-post="/chat" hx-target="#chat_messages" hx-on:submit="this.reset()">
+                <input
+                        type="text"
+                        id="chat_input"
+                        placeholder="Type your message here"
+                        name="message"
+                />
+                <button type="submit">Send</button>
+            </form>
+        </section>
+    </div>
+    </div>
 </div>
+
 </body>
 </html>

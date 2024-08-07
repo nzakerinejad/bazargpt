@@ -37,11 +37,28 @@ public class EndToEndTests {
 
     @Test
     public void testNotRegisteredUSerCanNotLogin() throws Exception {
-//        User user = new User();
+
         mockMvc.perform(post("/login").content("{\"email\":\"ali@hassan.com\",\"password\":\"hassan\"}")
                 .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(status().isUnauthorized());
 
+
+    }
+
+    @Test
+    public void testUserSendMessageAndRecieveResponse() throws Exception{
+
+        mockMvc.perform(post("/chat").content("{\"email\":\"ali@hassan.com\", \"message\":\"Hi, I have a question.\"}")
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isOk());
+    }
+
+    @Test
+    public void testGreeting() throws Exception {
+
+        mockMvc.perform(post("/greeting").content("{\"email\":\"ali@hassan.com\", \"message\":\"Hi, I have a question.\"}")
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isOk());
 
     }
 }
