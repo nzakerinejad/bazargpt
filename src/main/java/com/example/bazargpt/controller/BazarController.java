@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.http.ResponseEntity;
 //import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -68,16 +69,16 @@ public class BazarController {
 
     @PostMapping("/chat")
     public String sendMessage(MessageDTO messageDTO) {
-
-        return messageDTO.message();
-
+        return "Do you mean? " + messageDTO.message();
     }
 
     @PostMapping("/greeting")
-    public String greetingToTheUser() {
+    public String greetingToTheUser(MessageDTO messageDTO) {
 
-        return "Welcome  ";
+        return "Welcome " + messageDTO.email();
 
     }
+
+
 
 }

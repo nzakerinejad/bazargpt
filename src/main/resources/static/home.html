@@ -17,40 +17,56 @@
         <a href="/posts" class="block py-2 px-4 text-white hover:bg-gray-600">Posts</a>
     </div>
 
-    <!-- Main Content Area -->
-    <div class="flex-1 flex flex-col items-center justify-center p-4">
-        <div hx-ext="client-side-templates">
-            <div hx-post="/chat" hx-target="#search-results" >
+    <table width="100%">
+        <tr>
+            <td align="center" valign="middle">
+                <div style="text-align:center">
+                    <h1>Welcome</h1>
 
-                <div id="search-results"></div>
-            </div>
+                    <div id="chat" hx-swap="innerHTML" style="margin-bottom: 20px;">
+                        <!-- Chat messages will be displayed here -->
+                    </div>
 
-
-        <section>
-
-            <div hx-post="/greeting" hx-target="#online_count"  hx-trigger="load">
-            <h2></h2>
-            <p>
-
-                <span id="online_count"></span>
-            </p>
-            </div>
-
-            <div id="chat_messages"></div>
-
-            <form id="chat_form" hx-post="/chat" hx-target="#chat_messages" hx-on:submit="this.reset()">
-                <input
-                        type="text"
-                        id="chat_input"
-                        placeholder="Type your message here"
-                        name="message"
-                />
-                <button type="submit">Send</button>
-            </form>
-        </section>
-    </div>
-    </div>
+                    <form id="messageForm" action="/chat" method="post" onsubmit="handleSubmit(event)">
+                        <input type="text" id="message" name="message" placeholder="Your message" required>
+                        <button type="submit">Send</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+    </table>
 </div>
 
+<script>
+    async function handleSubmit(event) {
+        event.preventDefault();
+        const form = event.target;
+        const messageInput = document.getElementById('message');
+        const message = messageInput.value;
+
+        // Append user message
+        const userMessage = document.createElement('p');
+        userMessage.innerHTML = `<strong>User:</strong> ${message}`;
+        document.getElementById('chat').appendChild(userMessage);
+
+        // Send message to the server and get the response
+        const response = await fetch(form.action, {
+            method: form.method,
+            body: new FormData(form)
+        });
+
+        if (response.ok) {
+            const serverMessage = await response.text();
+            const serverResponse = document.createElement('p');
+            serverResponse.innerHTML = `<strong>Server:</strong> ${serverMessage}`;
+            document.getElementById('chat').appendChild(serverResponse);
+        } else {
+            console.error('Error:', response.statusText);
+        }
+
+        // Reset the form input after appending the server response
+        messageInput.value = '';
+    }
+</script>
 </body>
 </html>
