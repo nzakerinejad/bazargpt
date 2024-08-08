@@ -22,6 +22,7 @@ record RegisterUserApiDTO (String email, String password, String firstName, Stri
 record LoginUserApiDTO (String email, String password) {}
 
 record MessageDTO (String email, String message) {}
+record ResponseDTO (String userMessage, String responseMessage) {}
 
 @RestController
 public class BazarController {
@@ -65,11 +66,9 @@ public class BazarController {
 
     }
 
-
-
     @PostMapping("/chat")
-    public String sendMessage(MessageDTO messageDTO) {
-        return "Do you mean? " + messageDTO.message();
+    public ResponseDTO sendMessage(MessageDTO messageDTO) {
+        return new ResponseDTO(messageDTO.message(), "server says hello!");
     }
 
     @PostMapping("/greeting")
