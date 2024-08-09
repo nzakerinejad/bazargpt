@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.0.2/tailwind.min.css"/>
+    <!-- Include the core HTMX library -->
     <script src="https://unpkg.com/htmx.org@latest"></script>
+
+    <!-- Include the client-side templates extension -->
     <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/client-side-templates.js"></script>
+
     <script src="https://unpkg.com/mustache@latest"></script>
 
     <title>HTMX App</title>
@@ -30,7 +34,7 @@
                         mamad?
                     </div>
 
-                    <form id="messageForm" hx-post="/chat" hx-target="#chatlocation" hx-swap="beforeend" hx-on::after-request="this.reset()">
+                    <form id="messageForm" hx-post="/chat" hx-target="#chatlocation" hx-swap="beforeend" hx-on::after-request="this.reset()"  mustache-template="knn">
                         <input type="text" id="message" name="message" placeholder="Your message" required>
                         <button type="submit">Send</button>
                     </form>
@@ -38,6 +42,11 @@
             </td>
         </tr>
     </table>
+
+    <template id="knn">
+        <p> {{userMessage}} <div/> {{responseMessage}} </p>
+    </template>
+
 </div>
 
 </body>

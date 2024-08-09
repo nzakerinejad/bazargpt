@@ -66,21 +66,11 @@ public class BazarController {
 
     }
 
-//    @PostMapping("/chat")
-//    public ResponseDTO sendMessage(MessageDTO messageDTO) {
-//        return new ResponseDTO(messageDTO.message(), "server says hello!");
-//    }
-
     @PostMapping("/chat")
-    public String sendMessage(MessageDTO messageDTO) {
+    public ResponseDTO sendMessage(MessageDTO messageDTO) {
         String userMessage = messageDTO.message();
         String responseMessage = "server says hello!";
-
-        // Create the HTML fragment as a string
-        return "<div class='message-line'>" +
-                "<p><strong>You:</strong> " + userMessage + "</p>" +
-                "<p><strong>Server:</strong> " + responseMessage + "</p>" +
-                "</div>";
+        return new ResponseDTO(userMessage, responseMessage);
     }
 
     @PostMapping("/greeting")
