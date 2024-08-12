@@ -1,16 +1,17 @@
 package com.example.bazargpt.controller;
 
+import com.example.bazargpt.model.Conversation;
+import com.example.bazargpt.model.Message;
 import com.example.bazargpt.model.User;
+import com.example.bazargpt.repository.ConversationRepository;
+import com.example.bazargpt.repository.MessageRepository;
 import com.example.bazargpt.repository.UserRepository;
 import com.example.bazargpt.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.http.ResponseEntity;
 //import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
@@ -21,9 +22,10 @@ record RegisterUserApiDTO (String email, String password, String firstName, Stri
 
 record LoginUserApiDTO (String email, String password) {}
 
-record MessageDTO (String email, String message) {}
-record ResponseDTO (String userMessage, String responseMessage) {}
-
+record MessageDTO (String email, String message, Long conversationId) {}
+record ResponseDTO (String userMessage, String responseMessage, Long conversationId) {}
+record chatGetDTO (Long conversationId, String[] messages) {}
+record ChatGetRequestDTO (Integer convId) {}
 @RestController
 public class BazarController {
 
@@ -31,7 +33,14 @@ public class BazarController {
     private UserRepository userRepo;
 
     @Autowired
+    private ConversationRepository conversationRep;
+
+    @Autowired
+    private MessageRepository messageRep;
+
+    @Autowired
     private UserService userService;
+
 //    private CustomerService customerService;
 
 //    @GetMapping("/index_old")
@@ -67,13 +76,38 @@ public class BazarController {
     }
 
     @PostMapping("/chat")
-    public ResponseDTO sendMessage(MessageDTO messageDTO) {
+    public ResponseDTO sendMessage(@RequestBody MessageDTO messageDTO) {
         String userMessage = messageDTO.message();
         String responseMessage = "server says hello!";
-        return new ResponseDTO(userMessage, responseMessage);
+        long conversationId;
+        Conversation conversation = conversationRep.findByConversationId(messageDTO.conversationId());
+        Message newMessage = new Message();
+        newMessage.setContent(userMessage);
+        if (conversation != null) {
+            conversationId = messageDTO.conversationId();
+            newMessage.setConversation(conversation);
+            messageRep.save(newMessage);
+        }
+        else {
+            Conversation newConv = conversationRep.save(new Conversation());
+            conversationId = newConv.getConversationId();
+            newMessage.setConversation(newConv);
+            messageRep.save(newMessage);
+        }
+
+        return new ResponseDTO(userMessage, responseMessage, conversationId);
     }
 
-    @PostMapping("/greeting")
+    @GetMapping("/chat/{conversationId}")
+    public chatGetDTO getMessage(@PathVariable(value="conversationId") Long conversationId) {
+        var messages = messageRep.findMessagesByConversationId(conversationId);
+
+        String[] messageArray = messages.stream().map( m -> m.getContent()).toArray(String[]::new);
+
+        return new chatGetDTO(conversationId, messageArray);
+    }
+
+        @PostMapping("/greeting")
     public String greetingToTheUser(MessageDTO messageDTO) {
 
         return "Welcome " + messageDTO.email();
