@@ -11,6 +11,7 @@
     <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/client-side-templates.js"></script>
 
     <script src="https://unpkg.com/mustache@latest"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
 
     <title>HTMX App</title>
 </head>
@@ -34,7 +35,7 @@
                         mamad?
                     </div>
 
-                    <form id="messageForm" hx-post="/chat" hx-target="#chatlocation" hx-swap="beforeend" hx-on::after-request="this.reset()"  mustache-template="knn">
+                    <form id="messageForm" hx-post="/chat" hx-target="#chatlocation" hx-swap="beforeend" hx-on::after-request="this.reset()" hx-ext="json-enc" mustache-template="knn">
                         <input type="text" id="message" name="message" placeholder="Your message" required>
                         <button type="submit">Send</button>
                     </form>
