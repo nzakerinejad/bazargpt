@@ -8,10 +8,12 @@ import com.example.bazargpt.repository.MessageRepository;
 import com.example.bazargpt.repository.UserRepository;
 import com.example.bazargpt.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.http.ResponseEntity;
-//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
@@ -24,7 +26,7 @@ record LoginUserApiDTO (String email, String password) {}
 
 record MessageDTO (String email, String message, Long conversationId) {}
 record ResponseDTO (String userMessage, String responseMessage, Long conversationId) {}
-record chatGetDTO (Long conversationId, String[] messages) {}
+record ChatGetDTO(Long conversationId, String[] messages) {}
 record ChatGetRequestDTO (Integer convId) {}
 @RestController
 public class BazarController {
@@ -69,9 +71,9 @@ public class BazarController {
     public ResponseEntity<String> login(@RequestBody LoginUserApiDTO loginUserDTO) {
 
         if (userRepo.findByEmail(loginUserDTO.email()) != null)
-            return new ResponseEntity(OK);
+            return new ResponseEntity<>(OK);
         else
-            return new ResponseEntity(UNAUTHORIZED);
+            return new ResponseEntity<>(UNAUTHORIZED);
 
     }
 
@@ -99,12 +101,18 @@ public class BazarController {
     }
 
     @GetMapping("/chat/{conversationId}")
-    public chatGetDTO getMessage(@PathVariable(value="conversationId") Long conversationId) {
+    public ChatGetDTO getMessage(@PathVariable(value="conversationId") Long conversationId) {
         var messages = messageRep.findMessagesByConversationId(conversationId);
 
-        String[] messageArray = messages.stream().map( m -> m.getContent()).toArray(String[]::new);
+        String[] messageArray = messages.stream().map(Message::getContent).toArray(String[]::new);
 
-        return new chatGetDTO(conversationId, messageArray);
+        return new ChatGetDTO(conversationId, messageArray);
+    }
+
+    @GetMapping("/conversations")
+    public Long[] getAllConversations() {
+        var convs = conversationRep.findAll();
+        return convs.stream().map(Conversation::getConversationId).toArray(Long[]::new);
     }
 
         @PostMapping("/greeting")

@@ -8,10 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -128,6 +130,32 @@ public class EndToEndTests {
 
         assertEquals("kachal1", message2[0]);
         assertEquals("kachal2", message2[1]);
+    }
+
+    @Test
+    public void testShowAllConversations() throws Exception{
+
+        var mockConversation = mockMvc.perform(
+                post("/chat").contentType(MediaType.APPLICATION_JSON).content(getContent("ali@hassan.com", "kachal1", null)
+                )).andExpect(status().isOk()).andReturn();
+        int convId1 = readConversationId(mockConversation);
+
+        var mockConversation2 = mockMvc.perform(
+                post("/chat").contentType(MediaType.APPLICATION_JSON).content(getContent("hassan@hassan.com", "Man Hassanam", null)
+                )).andExpect(status().isOk()).andReturn();
+        int convId2 = readConversationId(mockConversation2);
+
+
+        var response = mockMvc.perform(
+                get("/conversations")
+        ).andExpect(status().isOk()).andReturn();
+        System.out.println(response);
+
+        JSONArray message1 = JsonPath.read(response.getResponse().getContentAsString(), "$");
+        Integer[] ids = message1.toArray(Integer[]::new);
+
+        assert Arrays.asList(ids).contains(convId1);
+        assert Arrays.asList(ids).contains(convId2);
     }
 
 
