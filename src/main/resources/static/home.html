@@ -23,6 +23,11 @@
         <a href="/" class="block py-2 px-4 text-white hover:bg-gray-600">Home</a>
         <a href="/users" class="block py-2 px-4 text-white hover:bg-gray-600">Users</a>
         <a href="/posts" class="block py-2 px-4 text-white hover:bg-gray-600">Posts</a>
+
+        <div hx-get="/conversations"  hx-trigger="load" hx-target="#content" mustache-array-template="convTemp">
+            <p id="content">List Of Conversations</p>
+        </div>
+
     </div>
 
     <table width="100%">
@@ -35,17 +40,30 @@
                         mamad?
                     </div>
 
-                    <form id="messageForm" hx-post="/chat" hx-target="#chatlocation" hx-swap="beforeend" hx-on::after-request="this.reset()" hx-ext="json-enc" mustache-template="knn">
+                    <form id="messageForm" hx-post="/chat" hx-target="#chatlocation" hx-swap="beforeend" hx-on::after-request="this.reset()" hx-ext="json-enc" mustache-template="chatTemp">
                         <input type="text" id="message" name="message" placeholder="Your message" required>
+                        <div id="conversationIdHolder">
+                        <input type="hidden" name="conversationId">
+                        </div>
                         <button type="submit">Send</button>
                     </form>
+
                 </div>
             </td>
         </tr>
     </table>
 
-    <template id="knn">
-        <p> {{userMessage}} <div/> {{responseMessage}} </p>
+    <template id="chatTemp">
+        <div><p> {{userMessage}} <div/> {{responseMessage}} </p></div>
+        <div hx-swap-oob="innerHTML:#conversationIdHolder">
+            <input type="hidden" name="conversationId" value="{{conversationId}}">
+        </div>
+    </template>
+
+    <template id="convTemp">
+        {{#data}}
+        <p>  {{conversationId}} </p>
+        {{/data}}
     </template>
 
 </div>

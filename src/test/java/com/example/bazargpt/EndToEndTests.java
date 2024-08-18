@@ -141,7 +141,7 @@ public class EndToEndTests {
         int convId1 = readConversationId(mockConversation);
 
         var mockConversation2 = mockMvc.perform(
-                post("/chat").contentType(MediaType.APPLICATION_JSON).content(getContent("hassan@hassan.com", "Man Hassanam", null)
+                post("/chat").contentType(MediaType.APPLICATION_JSON).content(getContent("hassan@hassan.com", "Man Hassanam",null)
                 )).andExpect(status().isOk()).andReturn();
         int convId2 = readConversationId(mockConversation2);
 
@@ -149,13 +149,14 @@ public class EndToEndTests {
         var response = mockMvc.perform(
                 get("/conversations")
         ).andExpect(status().isOk()).andReturn();
-        System.out.println(response);
+        System.out.println("convId1: " + convId1);
+        System.out.println("convId2: " + convId2);
 
-        JSONArray message1 = JsonPath.read(response.getResponse().getContentAsString(), "$");
-        Integer[] ids = message1.toArray(Integer[]::new);
+        String responseAsString = response.getResponse().getContentAsString();
 
-        assert Arrays.asList(ids).contains(convId1);
-        assert Arrays.asList(ids).contains(convId2);
+        assertTrue(responseAsString.contains(Long.toString(convId1)));
+        assertTrue(responseAsString.contains(Long.toString(convId2)));
+
     }
 
 

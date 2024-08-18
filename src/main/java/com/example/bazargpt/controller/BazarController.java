@@ -12,9 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.List;
-
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
@@ -27,7 +24,7 @@ record LoginUserApiDTO (String email, String password) {}
 record MessageDTO (String email, String message, Long conversationId) {}
 record ResponseDTO (String userMessage, String responseMessage, Long conversationId) {}
 record ChatGetDTO(Long conversationId, String[] messages) {}
-record ChatGetRequestDTO (Integer convId) {}
+record ConversationtDTO(Long conversationId, String conversationSummary) {}
 @RestController
 public class BazarController {
 
@@ -82,7 +79,9 @@ public class BazarController {
         String userMessage = messageDTO.message();
         String responseMessage = "server says hello!";
         long conversationId;
+
         Conversation conversation = conversationRep.findByConversationId(messageDTO.conversationId());
+
         Message newMessage = new Message();
         newMessage.setContent(userMessage);
         if (conversation != null) {
@@ -110,9 +109,9 @@ public class BazarController {
     }
 
     @GetMapping("/conversations")
-    public Long[] getAllConversations() {
+    public ConversationtDTO[] getAllConversations() {
         var convs = conversationRep.findAll();
-        return convs.stream().map(Conversation::getConversationId).toArray(Long[]::new);
+        return convs.stream().map(conv -> new ConversationtDTO(conv.getConversationId(), "Summary")).toArray(ConversationtDTO[]::new);
     }
 
         @PostMapping("/greeting")
