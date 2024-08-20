@@ -67,9 +67,15 @@
     </template>
 
     <template id="allChat">
+        <div>
         {{#data.messages}}
         <p> {{.}} </p>
         {{/data.messages}}
+        </div>
+        <div hx-swap-oob="innerHTML:#conversationIdHolder">
+            <input type="hidden" name="conversationId" value="{{data.conversationId}}">
+        </div>
+
     </template>
 
 </div>
