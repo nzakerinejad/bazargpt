@@ -62,8 +62,14 @@
 
     <template id="convTemp">
         {{#data}}
-        <p>  {{conversationId}} </p>
+        <p hx-get="/chat/{{conversationId}}" hx-trigger="click" hx-target="#chatlocation" mustache-array-template="allChat">  {{conversationId}} </p>
         {{/data}}
+    </template>
+
+    <template id="allChat">
+        {{#data.messages}}
+        <p> {{.}} </p>
+        {{/data.messages}}
     </template>
 
 </div>
