@@ -67,11 +67,6 @@
     </template>
 
     <template id="allChats">
-<!--        <div>-->
-<!--            {{#data.messages}}-->
-<!--            <p> {{.}} </p>-->
-<!--            {{/data.messages}}-->
-<!--        </div>-->
 
         <div>
             {{#data.responseDTOArray}}
@@ -79,8 +74,6 @@
             <p>{{responseMessage}}</p>
             {{/data.responseDTOArray}}
         </div>
-
-
 
         <div hx-swap-oob="innerHTML:#conversationIdHolder">
             <input type="hidden" name="conversationId" value="{{data.conversationId}}">

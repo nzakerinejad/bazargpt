@@ -8,12 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -103,7 +101,7 @@ public class EndToEndTests {
         int convId2 = readConversationId(mockConversation2);
         assertEquals(convId1, convId2);
 
-        String message = JsonPath.read(mockConversation2.getResponse().getContentAsString(), "$.messages[0]");
+        String message = JsonPath.read(mockConversation2.getResponse().getContentAsString(), "$.responseDTOArray[0].userMessage");
 
         assertEquals("kachal2", message);
     }
@@ -125,11 +123,12 @@ public class EndToEndTests {
         ).andExpect(status().isOk()).andReturn();
         int convId2 = readConversationId(mockConversation2);
 
-        JSONArray message1 = JsonPath.read(mockConversation3.getResponse().getContentAsString(), "$.messages");
-        String[] message2 = message1.toArray(String[]::new);
+        String message1 = JsonPath.read(mockConversation3.getResponse().getContentAsString(), "$.responseDTOArray[0].userMessage");
+        String message2 = JsonPath.read(mockConversation3.getResponse().getContentAsString(), "$.responseDTOArray[1].userMessage");
 
-        assertEquals("kachal1", message2[0]);
-        assertEquals("kachal2", message2[1]);
+
+        assertEquals("kachal1", message1);
+        assertEquals("kachal2", message2);
     }
 
     @Test

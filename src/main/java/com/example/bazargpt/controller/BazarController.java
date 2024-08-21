@@ -23,7 +23,7 @@ record LoginUserApiDTO (String email, String password) {}
 
 record MessageDTO (String email, String message, Long conversationId) {}
 record ResponseDTO (String userMessage, String responseMessage, Long conversationId) {}
-//record ChatGetDTO(Long conversationId, String[] messages, String[] responses) {}
+
 record ChatGetDTO(Long conversationId, ResponseDTO[] responseDTOArray) {}
 record ConversationtDTO(Long conversationId, String conversationSummary) {}
 @RestController
@@ -40,17 +40,6 @@ public class BazarController {
 
     @Autowired
     private UserService userService;
-
-//    private CustomerService customerService;
-
-//    @GetMapping("/index_old")
-//    public Person mouse() {
-//        return new Person("hassan", 10);
-//    }
-//    @PostMapping("/mouse_entered")
-//    public Person mouseEntered() {
-//        return new Person("Ali", 20);
-//    }
 
     @PostMapping("/register")
     public boolean register(RegisterUserApiDTO userDTO) {
@@ -105,8 +94,6 @@ public class BazarController {
     public ChatGetDTO getMessage(@PathVariable(value="conversationId") Long conversationId) {
         var messages = messageRep.findMessagesByConversationId(conversationId);
 
-//        String[] messageArray = messages.stream().map(Message::getContent).toArray(String[]::new);
-//        String[] responseArray = messages.stream().map(Message::getResponse).toArray(String[]::new);
 
         ResponseDTO[] responseDTOArray = messages.stream().map(m -> { String messageContent = m.getContent();
             String messageResponse = m.getResponse();
@@ -116,7 +103,6 @@ public class BazarController {
 
         return new ChatGetDTO(conversationId, responseDTOArray);
 
-//        return new ChatGetDTO(conversationId, messageArray, responseArray);
     }
 
     @GetMapping("/conversations")
