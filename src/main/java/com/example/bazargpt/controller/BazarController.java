@@ -23,7 +23,8 @@ record LoginUserApiDTO (String email, String password) {}
 
 record MessageDTO (String email, String message, Long conversationId) {}
 record ResponseDTO (String userMessage, String responseMessage, Long conversationId) {}
-record ChatGetDTO(Long conversationId, String[] messages) {}
+//record ChatGetDTO(Long conversationId, String[] messages, String[] responses) {}
+record ChatGetDTO(Long conversationId, ResponseDTO[] responseDTOArray) {}
 record ConversationtDTO(Long conversationId, String conversationSummary) {}
 @RestController
 public class BazarController {
@@ -84,6 +85,7 @@ public class BazarController {
 
         Message newMessage = new Message();
         newMessage.setContent(userMessage);
+        newMessage.setResponse(responseMessage);
         if (conversation != null) {
             conversationId = messageDTO.conversationId();
             newMessage.setConversation(conversation);
@@ -103,9 +105,18 @@ public class BazarController {
     public ChatGetDTO getMessage(@PathVariable(value="conversationId") Long conversationId) {
         var messages = messageRep.findMessagesByConversationId(conversationId);
 
-        String[] messageArray = messages.stream().map(Message::getContent).toArray(String[]::new);
+//        String[] messageArray = messages.stream().map(Message::getContent).toArray(String[]::new);
+//        String[] responseArray = messages.stream().map(Message::getResponse).toArray(String[]::new);
 
-        return new ChatGetDTO(conversationId, messageArray);
+        ResponseDTO[] responseDTOArray = messages.stream().map(m -> { String messageContent = m.getContent();
+            String messageResponse = m.getResponse();
+            ResponseDTO resDTO = new ResponseDTO(messageContent, messageResponse, conversationId);
+            return resDTO;
+        }).toArray(ResponseDTO[]::new);
+
+        return new ChatGetDTO(conversationId, responseDTOArray);
+
+//        return new ChatGetDTO(conversationId, messageArray, responseArray);
     }
 
     @GetMapping("/conversations")

@@ -17,6 +17,9 @@ public class Message {
     @Column(columnDefinition = "boolean default false")
     private Boolean isItFromAdmin;
 
+    @Column(name = "response", length = 1000)
+    private String response;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "conversation_id", nullable = false)
     private Conversation conversation;
@@ -44,6 +47,14 @@ public class Message {
 
     public void setItFromAdmin(Boolean itFromAdmin) {
         isItFromAdmin = itFromAdmin;
+    }
+
+    public String getResponse() {
+        return response;
+    }
+
+    public void setResponse(String response) {
+        this.response = response;
     }
 
     public Conversation getConversation() {

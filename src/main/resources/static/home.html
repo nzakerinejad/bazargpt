@@ -62,16 +62,26 @@
 
     <template id="convTemp">
         {{#data}}
-        <p hx-get="/chat/{{conversationId}}" hx-trigger="click" hx-target="#chatlocation" mustache-array-template="allChat">  {{conversationId}} </p>
+        <p hx-get="/chat/{{conversationId}}" hx-trigger="click" hx-target="#chatlocation" mustache-array-template="allChats">  {{conversationId}} </p>
         {{/data}}
     </template>
 
-    <template id="allChat">
+    <template id="allChats">
+<!--        <div>-->
+<!--            {{#data.messages}}-->
+<!--            <p> {{.}} </p>-->
+<!--            {{/data.messages}}-->
+<!--        </div>-->
+
         <div>
-        {{#data.messages}}
-        <p> {{.}} </p>
-        {{/data.messages}}
+            {{#data.responseDTOArray}}
+            <p> {{userMessage}} </p>
+            <p>{{responseMessage}}</p>
+            {{/data.responseDTOArray}}
         </div>
+
+
+
         <div hx-swap-oob="innerHTML:#conversationIdHolder">
             <input type="hidden" name="conversationId" value="{{data.conversationId}}">
         </div>
