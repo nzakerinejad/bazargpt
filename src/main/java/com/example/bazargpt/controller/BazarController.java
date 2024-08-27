@@ -7,10 +7,17 @@ import com.example.bazargpt.repository.ConversationRepository;
 import com.example.bazargpt.repository.MessageRepository;
 import com.example.bazargpt.repository.UserRepository;
 import com.example.bazargpt.service.UserService;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+
+import okhttp3.Request;
+import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
@@ -65,9 +72,9 @@ public class BazarController {
     }
 
     @PostMapping("/chat")
-    public ResponseDTO sendMessage(@RequestBody MessageDTO messageDTO) {
+    public ResponseDTO sendMessage(@RequestBody MessageDTO messageDTO) throws IOException {
         String userMessage = messageDTO.message();
-        String responseMessage = "server says hello!";
+        String responseMessage = userService.getResponse(userMessage);
         long conversationId;
 
         Conversation conversation = conversationRep.findByConversationId(messageDTO.conversationId());
@@ -89,6 +96,8 @@ public class BazarController {
 
         return new ResponseDTO(userMessage, responseMessage, conversationId);
     }
+
+
 
     @GetMapping("/chat/{conversationId}")
     public ChatGetDTO getMessage(@PathVariable(value="conversationId") Long conversationId) {
