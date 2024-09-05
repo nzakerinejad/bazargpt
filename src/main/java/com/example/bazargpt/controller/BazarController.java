@@ -1,23 +1,24 @@
 package com.example.bazargpt.controller;
 
 import com.example.bazargpt.model.Conversation;
+import com.example.bazargpt.model.ConversationEmbedding;
 import com.example.bazargpt.model.Message;
 import com.example.bazargpt.model.User;
+import com.example.bazargpt.repository.ConversationEmbeddingRepository;
 import com.example.bazargpt.repository.ConversationRepository;
 import com.example.bazargpt.repository.MessageRepository;
 import com.example.bazargpt.repository.UserRepository;
+import com.example.bazargpt.service.OpenAIWrapper;
 import com.example.bazargpt.service.UserService;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
 
-import okhttp3.Request;
-import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
@@ -33,6 +34,9 @@ record ResponseDTO (String userMessage, String responseMessage, Long conversatio
 
 record ChatGetDTO(Long conversationId, ResponseDTO[] responseDTOArray) {}
 record ConversationtDTO(Long conversationId, String conversationSummary) {}
+
+record EmbeddingDTO(String userMessage, String responseMessage) {}
+
 @RestController
 public class BazarController {
 
@@ -47,6 +51,12 @@ public class BazarController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private OpenAIWrapper openAIWrapper;
+
+    @Autowired
+    private ConversationEmbeddingRepository conversationEmbeddingRepo;
 
     @PostMapping("/register")
     public boolean register(RegisterUserApiDTO userDTO) {
@@ -120,13 +130,41 @@ public class BazarController {
         return convs.stream().map(conv -> new ConversationtDTO(conv.getConversationId(), "Summary")).toArray(ConversationtDTO[]::new);
     }
 
-        @PostMapping("/greeting")
+    @GetMapping("/embedding/{conversationId}")
+    public List<Float> getEmbeddingForConversation(@PathVariable(value="conversationId") Long conversationId) {
+
+        var messages = messageRep.findMessagesByConversationId(conversationId);
+
+        ArrayList<String> ml = new ArrayList<>();
+
+        for(var m : messages) {
+            ml.add(m.getContent());
+            ml.add(m.getResponse());
+        }
+        var embedding = openAIWrapper.getEmbeddingForConversationFromOpenAI(ml);
+
+        ConversationEmbedding convEmb = new ConversationEmbedding();
+        convEmb.setConversation(conversationRep.findByConversationId(conversationId));
+        convEmb.setEmbedding(embedding);
+
+        conversationEmbeddingRepo.save(convEmb);
+
+        return embedding;
+    }
+
+    @GetMapping("/all_embeddings")
+    public List<List<Float>> getAllEmbeddings() {
+        var embeddingsList = conversationEmbeddingRepo.findAll();
+        return embeddingsList.stream().map(e -> e.getEmbedding()).toList();
+    }
+
+
+
+    @PostMapping("/greeting")
     public String greetingToTheUser(MessageDTO messageDTO) {
 
         return "Welcome " + messageDTO.email();
 
     }
-
-
 
 }

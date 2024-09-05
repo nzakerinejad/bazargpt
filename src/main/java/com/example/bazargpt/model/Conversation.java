@@ -20,6 +20,10 @@ public class Conversation {
     @JoinColumn(name = "user_id", nullable = true)
     private User user;
 
+    @OneToOne(mappedBy = "conversation", cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
+    private ConversationEmbedding conversationEmbedding;
+
 
     public long getConversationId() {
         return conversationId;

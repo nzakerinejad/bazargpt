@@ -16,8 +16,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepo;
-    @Value("${openaikey}")
-    private String openaikey;
+
+    @Autowired
+    private OpenAIWrapper openAIWrapper;
 
     public void createUser(User user) {
 
@@ -25,28 +26,7 @@ public class UserService {
     }
 
     public String getResponse(String userMessage) throws IOException {
-        OkHttpClient client = new OkHttpClient().newBuilder()
-                .build();
-        MediaType mediaType = MediaType.parse("application/json");
-        RequestBody body = RequestBody.create(mediaType, "{\n  \"model\": \"gpt-3.5-turbo\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n   \"content\":\"" + userMessage + "\"\n    }\n  ]\n}");
-        System.out.println("env var: " + openaikey);
-        Request request = new Request.Builder()
-                .url("https://api.openai.com/v1/chat/completions")
-                .method("POST", body)
-                .addHeader("Content-Type", "application/json")
-                .addHeader("Authorization", "Bearer " + openaikey)
-                .build();
-        Response response = client.newCall(request).execute();
-
-//        return response.body().string();
-        String responseBody = response.body().string();
-
-        // Use JsonPath to extract the "name" field from the "data" object
-//        String content = JsonPath.read(responseBody, "$.data.content");
-        System.out.println("Content: " + responseBody);
-        String content = JsonPath.read(responseBody, "$.choices[0].message.content");
-        System.out.println("Content: " + content);
-//        return responseBody;
-        return content;
+        return openAIWrapper.getOpenAIResponse(userMessage);
     }
+
 }

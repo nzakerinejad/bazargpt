@@ -1,28 +1,46 @@
 package com.example.bazargpt;
 
 import com.example.bazargpt.model.User;
+import com.example.bazargpt.repository.UserRepository;
+import com.example.bazargpt.service.OpenAIWrapper;
 import com.jayway.jsonpath.JsonPath;
 import net.minidev.json.JSONArray;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.client.AutoConfigureWebClient;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ImportAutoConfiguration(exclude = {OpenAIWrapper.class})
 public class EndToEndTests {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private OpenAIWrapper openAIWrapperMock;
 
     @Test
     public void testRegisteredUSerCanLogin() throws Exception {
@@ -155,6 +173,34 @@ public class EndToEndTests {
 
         assertTrue(responseAsString.contains(Long.toString(convId1)));
         assertTrue(responseAsString.contains(Long.toString(convId2)));
+
+    }
+
+
+    @Test
+    public void testGetEmbeddingForAConversation() throws Exception {
+            // Ensure that mock behavior is defined
+        when(openAIWrapperMock.getOpenAIResponse(anyString())).thenReturn("salaam hassan");
+        when(openAIWrapperMock.getEmbeddingForConversationFromOpenAI(any())).thenReturn(List.of(0f,1f,2f,3f));
+
+        var mockConversation = mockMvc.perform(
+                        post("/chat").contentType(MediaType.APPLICATION_JSON).content("{\"email\":\"ali@hassan.com\", \"message\":\"Hi, I have a question.\"}")
+                ).andExpect(status().isOk())
+                .andReturn();
+        int convId = readConversationId(mockConversation);
+        System.out.println("conversationId: " + convId);
+
+        var responseFromChatgpt = mockMvc.perform(get("/embedding/{conversationId}",Integer.toString(convId))
+        ).andExpect(status().isOk()).andReturn();
+
+        List<Float> message1 = JsonPath.read(responseFromChatgpt.getResponse().getContentAsString(), "$");
+        List<Double> expected = List.of(0d,1d,2d,3d);
+        assertArrayEquals(expected.toArray(), message1.toArray());
+
+        var allEmbeddingsResponse = mockMvc.perform(get("/all_embeddings")).andExpect(status().isOk()).andReturn();
+        List<List<Float>> allEmbeddingsList = JsonPath.read(allEmbeddingsResponse.getResponse().getContentAsString(), "$");
+        assertTrue(allEmbeddingsList.size() >= 1);
+        assertEquals(expected, allEmbeddingsList.get(0));
 
     }
 
