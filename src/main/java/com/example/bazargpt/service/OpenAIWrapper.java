@@ -15,10 +15,6 @@ public class OpenAIWrapper {
     @Value("${openaikey}")
     private String openaikey;
 
-    public OpenAIWrapper(String openaikey) {
-        this.openaikey = openaikey;
-    }
-
     public String getOpenAIResponse(String userMessage) throws IOException {
         OkHttpClient client = new OkHttpClient().newBuilder().build();
         MediaType mediaType = MediaType.parse("application/json");
@@ -54,7 +50,7 @@ public class OpenAIWrapper {
             // Send the request and get the response
             Response response = client.newCall(request).execute();
             String responseBody = response.body().string();
-
+            System.out.println(responseBody);
             // Use JsonPath to extract the embedding array
             embeddingList = JsonPath.read(responseBody, "$.data[0].embedding");
 
