@@ -25,7 +25,7 @@ jobs:
 
     - name: Build with Gradle Wrapper
       env: 
-        OPENAI_API_KEY: ${{ secrets.KEYSTORE_BASE64 }} 
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }} 
       run: ./gradlew build
 
     - name: Build the Docker image
