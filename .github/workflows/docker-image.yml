@@ -13,8 +13,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: set env
-      run: echo "::set-env name=DOCKER_TAG::$(date +'%Y-%m-%dT%H:%M:%S')"
+    - name: set tag env
+      run: echo "DOCKER_TAG=127.0.0.1:12345/baazargpt-app:$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
 
     - uses: actions/checkout@v4
     - name: Set up JDK 21
@@ -32,7 +32,7 @@ jobs:
       run: ./gradlew build
 
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag 127.0.0.1:12345/my-image-name:${{ env.DOCKER_TAG }}
+      run: docker build . --file Dockerfile --tag ${{ env.DOCKER_TAG }}
 
     - name: setup ssh connection
       run: |
@@ -41,7 +41,7 @@ jobs:
         ssh -o "IdentitiesOnly=yes" -i $(pwd)/private_key -o 'StrictHostKeyChecking=no' -o 'UpdateHostKeys=no' -M -S server-socket -fnNT -L 12345:${{ secrets.BACKEND_SSH_HOST }}:5000 ${{ secrets.BACKEND_SSH_USERNAME }}@${{ secrets.BACKEND_SSH_HOST }}
 
     - name: Push the docker image
-      run: docker push 127.0.0.1:12345/my-image-name:${{ env.DOCKER_TAG }}
+      run: docker push ${{ env.DOCKER_TAG }}
 
     - name: teardown
       if: always()
