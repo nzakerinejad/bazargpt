@@ -50,5 +50,7 @@ jobs:
       if: always()
       run: |
         ssh -S server-socket -O exit ${{ secrets.BACKEND_SSH_USERNAME }}@${{ secrets.BACKEND_SSH_HOST }}
-    - run: echo hello > some-random-file.txt
     - uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        file_pattern: 'deployments/prod.yaml'
+
