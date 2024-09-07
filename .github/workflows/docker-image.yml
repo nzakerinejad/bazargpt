@@ -29,16 +29,16 @@ jobs:
       run: ./gradlew build
 
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag 127.0.0.1:123456/my-image-name:$(date +%s)
+      run: docker build . --file Dockerfile --tag 127.0.0.1:12345/my-image-name:$(date +%s)
 
     - name: setup ssh connection
       run: |
         echo "${{ secrets.BACKEND_SSH_KEY }}" > $(pwd)/private_key
         chmod 600 $(pwd)/private_key
-        ssh -o "IdentitiesOnly=yes" -i $(pwd)/private_key -o 'StrictHostKeyChecking=no' -o 'UpdateHostKeys=no' -M -S server-socket -fnNT -L 12346:${{ secrets.BACKEND_SSH_HOST }}:5000 ${{ secrets.BACKEND_SSH_USERNAME }}@${{ secrets.BACKEND_SSH_HOST }}
+        ssh -o "IdentitiesOnly=yes" -i $(pwd)/private_key -o 'StrictHostKeyChecking=no' -o 'UpdateHostKeys=no' -M -S server-socket -fnNT -L 12345:${{ secrets.BACKEND_SSH_HOST }}:5000 ${{ secrets.BACKEND_SSH_USERNAME }}@${{ secrets.BACKEND_SSH_HOST }}
 
     - name: Push the docker image
-      run: docker push 127.0.0.1:123456/my-image-name:$(date +%s)
+      run: docker push 127.0.0.1:12345/my-image-name:$(date +%s)
 
     - name: teardown
       if: always()
