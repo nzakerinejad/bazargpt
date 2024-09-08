@@ -46,11 +46,12 @@ jobs:
     - name: Push the docker image
       run: docker push ${{ env.DOCKER_TAG }}
 
+    - name: generate docker compose manifest and upload
+      run: |
+        APP_IMAGE=$(docker images --no-trunc --quiet ${{ env.DOCKER_TAG }}) docker compose -f docker-compose.yml -f docker-compose.prod.yml config > docker-compose.manifest.yml
+        scp -o "IdentitiesOnly=yes" -i $(pwd)/private_key -o 'StrictHostKeyChecking=no' -o 'UpdateHostKeys=no' docker-compose.manifest.yml ${{ secrets.BACKEND_SSH_USERNAME }}@${{ secrets.BACKEND_SSH_HOST }}:/docker-compose-manifests/bazargpt/docker-compose.manifest.yml
     - name: teardown
       if: always()
       run: |
         ssh -S server-socket -O exit ${{ secrets.BACKEND_SSH_USERNAME }}@${{ secrets.BACKEND_SSH_HOST }}
-    - uses: stefanzweifel/git-auto-commit-action@v5
-      with:
-        file_pattern: 'deployments/prod.yaml'
-
+        rm $(pwd)/private_key
