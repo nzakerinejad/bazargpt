@@ -2,5 +2,3 @@ services:
   app:
     image: ${APP_IMAGE}
     build: !reset
-    environment:
-      - OPENAI_API_KEY=set-me-later
