@@ -53,5 +53,6 @@ jobs:
     - name: teardown
       if: always()
       run: |
+        touch bazaarapp.env
         ssh -S server-socket -O exit ${{ secrets.BACKEND_SSH_USERNAME }}@${{ secrets.BACKEND_SSH_HOST }}
         rm $(pwd)/private_key
