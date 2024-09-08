@@ -49,7 +49,7 @@ jobs:
     - name: generate docker compose manifest and upload
       run: |
         touch bazaarapp.env
-        APP_IMAGE=$(docker images --no-trunc --quiet ${{ env.DOCKER_TAG }}) docker compose -f docker-compose.yml -f docker-compose.prod.yml config > docker-compose.manifest.yml
+        APP_IMAGE=localhost:12345/baazargpt-app@$(docker images --no-trunc --quiet ${{ env.DOCKER_TAG }}) docker compose -f docker-compose.yml -f docker-compose.prod.yml config > docker-compose.manifest.yml
         ssh -o "IdentitiesOnly=yes" -i $(pwd)/private_key -o 'StrictHostKeyChecking=no' -o 'UpdateHostKeys=no' ${{ secrets.BACKEND_SSH_USERNAME }}@${{ secrets.BACKEND_SSH_HOST }} mkdir -p /docker-compose-manifests/bazargpt/
         scp -o "IdentitiesOnly=yes" -i $(pwd)/private_key -o 'StrictHostKeyChecking=no' -o 'UpdateHostKeys=no' docker-compose.manifest.yml ${{ secrets.BACKEND_SSH_USERNAME }}@${{ secrets.BACKEND_SSH_HOST }}:/docker-compose-manifests/bazargpt/docker-compose.manifest.yml
         scp -o "IdentitiesOnly=yes" -i $(pwd)/private_key -o 'StrictHostKeyChecking=no' -o 'UpdateHostKeys=no' docker-compose.prod-secrets.yml ${{ secrets.BACKEND_SSH_USERNAME }}@${{ secrets.BACKEND_SSH_HOST }}:/docker-compose-manifests/bazargpt/docker-compose.prod-secrets.yml
