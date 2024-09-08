@@ -41,7 +41,7 @@ jobs:
       run: |
         echo "${{ secrets.BACKEND_SSH_KEY }}" > $(pwd)/private_key
         chmod 600 $(pwd)/private_key
-        ssh -o "IdentitiesOnly=yes" -i $(pwd)/private_key -o 'StrictHostKeyChecking=no' -o 'UpdateHostKeys=no' -M -S server-socket -fnNT -L 12345:${{ secrets.BACKEND_SSH_HOST }}:5000 ${{ secrets.BACKEND_SSH_USERNAME }}@${{ secrets.BACKEND_SSH_HOST }}
+        ssh -o "IdentitiesOnly=yes" -i $(pwd)/private_key -o 'StrictHostKeyChecking=no' -o 'UpdateHostKeys=no' -M -S server-socket -fnNT -L 12345:${{ secrets.BACKEND_SSH_HOST }}:12345 ${{ secrets.BACKEND_SSH_USERNAME }}@${{ secrets.BACKEND_SSH_HOST }}
 
     - name: Push the docker image
       run: docker push ${{ env.DOCKER_TAG }}
