@@ -3,4 +3,4 @@ services:
     image: ${APP_IMAGE}
     build: !reset
     ports: !reset
-      - 18080:8080
+      - 8080:18080
