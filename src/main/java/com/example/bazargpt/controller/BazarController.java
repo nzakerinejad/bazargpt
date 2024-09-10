@@ -71,15 +71,16 @@ public class BazarController {
         return true;
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginUserApiDTO loginUserDTO) {
+//    @PostMapping("/login")
+//    public ResponseEntity<String> login(@RequestBody LoginUserApiDTO loginUserDTO) {
+//
+//        if (userRepo.findByEmail(loginUserDTO.email()) != null)
+//            return new ResponseEntity<>(OK);
+//        else
+//            return new ResponseEntity<>(UNAUTHORIZED);
+//
+//    }
 
-        if (userRepo.findByEmail(loginUserDTO.email()) != null)
-            return new ResponseEntity<>(OK);
-        else
-            return new ResponseEntity<>(UNAUTHORIZED);
-
-    }
 
     @PostMapping("/chat")
     public ResponseDTO sendMessage(@RequestBody MessageDTO messageDTO) throws IOException {
