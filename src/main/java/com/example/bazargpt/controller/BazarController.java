@@ -85,9 +85,10 @@ public class BazarController {
     @PostMapping("/chat")
     public ResponseDTO sendMessage(@RequestBody MessageDTO messageDTO) throws IOException {
         String userMessage = messageDTO.message();
+        System.out.println("Hassan 1 Salam");
         String responseMessage = userService.getResponse(userMessage);
         long conversationId;
-
+        System.out.println("Hassan 222 Salam");
         Conversation conversation = conversationRep.findByConversationId(messageDTO.conversationId());
 
         Message newMessage = new Message();
@@ -163,6 +164,7 @@ public class BazarController {
 
     @PostMapping("/greeting")
     public String greetingToTheUser(MessageDTO messageDTO) {
+        System.out.println("Hassan 333 Salam");
 
         return "Welcome " + messageDTO.email();
 
