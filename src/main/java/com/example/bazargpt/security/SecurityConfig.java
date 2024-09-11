@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
 
 @Configuration
@@ -26,6 +27,7 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/chat/**").hasRole("USER")
+                        .requestMatchers("/chat").hasRole("USER")
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults())
@@ -35,7 +37,8 @@ public class SecurityConfig {
                         .deleteCookies("JSESSIONID")
                 )
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/chat/**")  // Disable CSRF for /chat/** routes
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())  // Use cookie to store CSRF token
+                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
                 )
                 .build();
     }
