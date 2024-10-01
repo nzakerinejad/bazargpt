@@ -22,11 +22,11 @@ import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Value("${username}")
-    private String username;
+    @Value("${admin_username}")
+    private String admin_username;
 
-    @Value("${password}")
-    private String password;
+    @Value("${admin_password}")
+    private String admin_password;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -54,8 +54,8 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         UserDetails userDetails = User.withDefaultPasswordEncoder()
-                .username(username)
-                .password(password)
+                .username(admin_username)
+                .password(admin_password)
                 .roles("USER")
                 .build();
 
