@@ -168,7 +168,6 @@ public class EndToEndTests {
 
     }
 
-
     @Test
     public void testGetEmbeddingForAConversation() throws Exception {
             // Ensure that mock behavior is defined
@@ -193,6 +192,25 @@ public class EndToEndTests {
         List<List<Float>> allEmbeddingsList = JsonPath.read(allEmbeddingsResponse.getResponse().getContentAsString(), "$");
         assertTrue(allEmbeddingsList.size() >= 1);
         assertEquals(expected, allEmbeddingsList.get(0));
+
+    }
+
+    @Test
+    public void testGetSummaryForAConversation() throws Exception {
+        when(openAIWrapperMock.getOpenAIResponse(anyString())).thenReturn("white shirts size large for men ");
+
+        var mockConversation = mockMvc.perform(
+                        post("/chat").contentType(MediaType.APPLICATION_JSON).content("{\"email\":\"ali@hassan.com\", \"message\":\"Hi, I am a tall guy. My size is large. I prefer white color. I need a shirt.\"}")
+                ).andExpect(status().isOk())
+                .andReturn();
+        int convId = readConversationId(mockConversation);
+        System.out.println("conversationId: " + convId);
+
+        var responseFromChatgpt = mockMvc.perform(get("/summarize/{conversationId}",Integer.toString(convId)))
+                .andExpect(status().isOk()).andReturn();
+
+        String summary  = JsonPath.read(responseFromChatgpt.getResponse().getContentAsString(), "$");
+        assertEquals("white shirts size large for men", summary);
 
     }
 

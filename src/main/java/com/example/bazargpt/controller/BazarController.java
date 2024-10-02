@@ -33,7 +33,7 @@ record MessageDTO (String email, String message, Long conversationId) {}
 record ResponseDTO (String userMessage, String responseMessage, Long conversationId) {}
 
 record ChatGetDTO(Long conversationId, ResponseDTO[] responseDTOArray) {}
-record ConversationtDTO(Long conversationId, String conversationSummary) {}
+record ConversationDTO(Long conversationId, String conversationSummary) {}
 
 record EmbeddingDTO(String userMessage, String responseMessage) {}
 
@@ -127,9 +127,9 @@ public class BazarController {
     }
 
     @GetMapping("/conversations")
-    public ConversationtDTO[] getAllConversations() {
+    public ConversationDTO[] getAllConversations() {
         var convs = conversationRep.findAll();
-        return convs.stream().map(conv -> new ConversationtDTO(conv.getConversationId(), "Summary")).toArray(ConversationtDTO[]::new);
+        return convs.stream().map(conv -> new ConversationDTO(conv.getConversationId(), "Summary")).toArray(ConversationDTO[]::new);
     }
 
     @GetMapping("/embedding/{conversationId}")
@@ -158,6 +158,22 @@ public class BazarController {
     public List<List<Float>> getAllEmbeddings() {
         var embeddingsList = conversationEmbeddingRepo.findAll();
         return embeddingsList.stream().map(e -> e.getEmbedding()).toList();
+    }
+
+    @GetMapping("/summarize/{conversationId}")
+    public String getSummaryOfRequest(@PathVariable(value = "conversationId") Long conversationId) throws IOException {
+        var messages = messageRep.findMessagesByConversationId(conversationId);
+        ArrayList<String> messageList = new ArrayList<>();
+
+        for(var m : messages) {
+            messageList.add(m.getContent());
+            messageList.add(m.getResponse());
+        }
+
+        String joinedInput = String.join(" ", messageList);
+        String summary = userService.getResponse("Please summarize the following conversation: " + messageList);
+
+        return summary;
     }
 
 
