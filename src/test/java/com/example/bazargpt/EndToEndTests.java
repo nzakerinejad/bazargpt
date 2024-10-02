@@ -39,14 +39,14 @@ public class EndToEndTests {
         User user = new User();
 
         mockMvc.perform(post("/register").param("email", "hassan@hassan.com")
-                        .param("password","hassan")
-                        .param("firstName","hassan")
-                                .param("lastName","hassan")
+                .param("password", "hassan")
+                .param("firstName", "hassan")
+                .param("lastName", "hassan")
         ).andExpect(status().isOk());
 
         mockMvc.perform(post("/login").content("{\"email\":\"hassan@hassan.com\",\"password\":\"hassan\"}")
-                        .contentType(MediaType.APPLICATION_JSON)
-                ).andExpect(status().isOk());
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isOk());
 
 
     }
@@ -58,11 +58,10 @@ public class EndToEndTests {
                 .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(status().isUnauthorized());
 
-
     }
 
     @Test
-    public void testUserSendMessageAndRecieveResponse() throws Exception{
+    public void testUserSendMessageAndRecieveResponse() throws Exception {
 
         mockMvc.perform(post("/chat").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"email\":\"ali@hassan.com\", \"message\":\"Hi, I have a question.\"}")
@@ -71,18 +70,18 @@ public class EndToEndTests {
     }
 
     @Test
-    public void testCreateNewConversationWhenUserStartsNewChat() throws Exception{
+    public void testCreateNewConversationWhenUserStartsNewChat() throws Exception {
 
         var mockConversation = mockMvc.perform(
-                post("/chat").contentType(MediaType.APPLICATION_JSON).content("{\"email\":\"ali@hassan.com\", \"message\":\"Hi, I have a question.\"}")
-        ).andExpect(status().isOk())
+                        post("/chat").contentType(MediaType.APPLICATION_JSON).content("{\"email\":\"ali@hassan.com\", \"message\":\"Hi, I have a question.\"}")
+                ).andExpect(status().isOk())
                 .andReturn();
         int convId = readConversationId(mockConversation);
         System.out.println("conversationId: " + convId);
     }
 
     @Test
-    public void testCreatedConversionsHaveDifferentIds() throws Exception{
+    public void testCreatedConversionsHaveDifferentIds() throws Exception {
 
         var mockConversation = mockMvc.perform(
                 post("/chat").contentType(MediaType.APPLICATION_JSON).content(getContent("ali@hassan.com", "sallam ", null)
@@ -98,7 +97,7 @@ public class EndToEndTests {
     }
 
     @Test
-    public void testFirstMessagesAreSaved() throws Exception{
+    public void testFirstMessagesAreSaved() throws Exception {
 
         var mockConversation = mockMvc.perform(
                 post("/chat").contentType(MediaType.APPLICATION_JSON).content(getContent("ali@hassan.com", "kachal2", null)
@@ -117,7 +116,7 @@ public class EndToEndTests {
     }
 
     @Test
-    public void testSecondMessagesAreSaved() throws Exception{
+    public void testSecondMessagesAreSaved() throws Exception {
 
         var mockConversation = mockMvc.perform(
                 post("/chat").contentType(MediaType.APPLICATION_JSON).content(getContent("ali@hassan.com", "kachal1", null)
@@ -142,7 +141,7 @@ public class EndToEndTests {
     }
 
     @Test
-    public void testShowAllConversations() throws Exception{
+    public void testShowAllConversations() throws Exception {
 
         var mockConversation = mockMvc.perform(
                 post("/chat").contentType(MediaType.APPLICATION_JSON).content(getContent("ali@hassan.com", "kachal1", null)
@@ -150,7 +149,7 @@ public class EndToEndTests {
         int convId1 = readConversationId(mockConversation);
 
         var mockConversation2 = mockMvc.perform(
-                post("/chat").contentType(MediaType.APPLICATION_JSON).content(getContent("hassan@hassan.com", "Man Hassanam",null)
+                post("/chat").contentType(MediaType.APPLICATION_JSON).content(getContent("hassan@hassan.com", "Man Hassanam", null)
                 )).andExpect(status().isOk()).andReturn();
         int convId2 = readConversationId(mockConversation2);
 
@@ -170,9 +169,9 @@ public class EndToEndTests {
 
     @Test
     public void testGetEmbeddingForAConversation() throws Exception {
-            // Ensure that mock behavior is defined
+        // Ensure that mock behavior is defined
         when(openAIWrapperMock.getOpenAIResponse(anyString())).thenReturn("salaam hassan");
-        when(openAIWrapperMock.getEmbeddingForConversationFromOpenAI(any())).thenReturn(List.of(0f,1f,2f,3f));
+        when(openAIWrapperMock.getEmbeddingForConversationFromOpenAI(any())).thenReturn(List.of(0f, 1f, 2f, 3f));
 
         var mockConversation = mockMvc.perform(
                         post("/chat").contentType(MediaType.APPLICATION_JSON).content("{\"email\":\"ali@hassan.com\", \"message\":\"Hi, I have a question.\"}")
@@ -181,11 +180,11 @@ public class EndToEndTests {
         int convId = readConversationId(mockConversation);
         System.out.println("conversationId: " + convId);
 
-        var responseFromChatgpt = mockMvc.perform(get("/embedding/{conversationId}",Integer.toString(convId))
+        var responseFromChatgpt = mockMvc.perform(get("/embedding/{conversationId}", Integer.toString(convId))
         ).andExpect(status().isOk()).andReturn();
 
         List<Float> message1 = JsonPath.read(responseFromChatgpt.getResponse().getContentAsString(), "$");
-        List<Double> expected = List.of(0d,1d,2d,3d);
+        List<Double> expected = List.of(0d, 1d, 2d, 3d);
         assertArrayEquals(expected.toArray(), message1.toArray());
 
         var allEmbeddingsResponse = mockMvc.perform(get("/all_embeddings")).andExpect(status().isOk()).andReturn();
@@ -194,26 +193,6 @@ public class EndToEndTests {
         assertEquals(expected, allEmbeddingsList.get(0));
 
     }
-
-    @Test
-    public void testGetSummaryForAConversation() throws Exception {
-        when(openAIWrapperMock.getOpenAIResponse(anyString())).thenReturn("white shirts size large for men ");
-
-        var mockConversation = mockMvc.perform(
-                        post("/chat").contentType(MediaType.APPLICATION_JSON).content("{\"email\":\"ali@hassan.com\", \"message\":\"Hi, I am a tall guy. My size is large. I prefer white color. I need a shirt.\"}")
-                ).andExpect(status().isOk())
-                .andReturn();
-        int convId = readConversationId(mockConversation);
-        System.out.println("conversationId: " + convId);
-
-        var responseFromChatgpt = mockMvc.perform(get("/summarize/{conversationId}",Integer.toString(convId)))
-                .andExpect(status().isOk()).andReturn();
-
-        String summary  = JsonPath.read(responseFromChatgpt.getResponse().getContentAsString(), "$");
-        assertEquals("white shirts size large for men", summary);
-
-    }
-
 
     private static Integer readConversationId(MvcResult mockConversation) throws UnsupportedEncodingException {
         return JsonPath.read(mockConversation.getResponse().getContentAsString(), "$.conversationId");

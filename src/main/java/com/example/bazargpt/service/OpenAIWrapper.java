@@ -32,13 +32,11 @@ public class OpenAIWrapper {
         return content;
     }
 
-    public List<Float> getEmbeddingForConversationFromOpenAI(ArrayList<String> messageList) {
+    public List<Float> getEmbeddingForConversationFromOpenAI(String summary) {
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
-        String joinedInput = String.join(" ", messageList);
-
         String jsonBody = String.format("{\n    \"input\": \"%s\",\n    \"model\": \"text-embedding-3-small\"\n}",
-                escapedQuotes(joinedInput));
+                escapedQuotes(summary));
 
         // Create the request body
         MediaType mediaType = MediaType.parse("application/json");
@@ -57,10 +55,9 @@ public class OpenAIWrapper {
             // Send the request and get the response
             Response response = client.newCall(request).execute();
             String responseBody = response.body().string();
-//            System.out.println(responseBody);
             // Use JsonPath to extract the embedding array
             List<Double> embedding = JsonPath.read(responseBody, "$.data[0].embedding");
-            embeddingList = embedding.stream().map(Double :: floatValue).collect(Collectors.toList());
+            embeddingList = embedding.stream().map(Double::floatValue).collect(Collectors.toList());
 
         } catch (IOException e) {
             e.printStackTrace();

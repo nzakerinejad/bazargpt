@@ -18,41 +18,29 @@ class OpenAIWrapperTest {
     OpenAIWrapper openAI;
 
     @Test
-    public void testOpenAIWrapper() throws IOException {
-        ArrayList<String> ml1 = new ArrayList<>(Arrays.asList("", "ok"));
-        var embeddings1 = openAI.getEmbeddingForConversationFromOpenAI(ml1);
-        assertTrue(embeddings1.size()>10);
-
-        ArrayList<String> ml2 = new ArrayList<>(Arrays.asList("hi. how are you", "ok"));
-        var embeddings2 = openAI.getEmbeddingForConversationFromOpenAI(ml2);
-
-        assertEquals(embeddings1, embeddings2);
-    }
-
-    @Test
     public void testEmbeddingsAreDifferentForDifferentConversations() throws IOException {
-        ArrayList<String> ml1 = new ArrayList<>(Arrays.asList("hi. how are you", "ok"));
-        var embeddings1 = openAI.getEmbeddingForConversationFromOpenAI(ml1);
+        String message1 = "I have a question about moon.";
+        var embeddings1 = openAI.getEmbeddingForConversationFromOpenAI(message1);
 
-        ArrayList<String> ml2 = new ArrayList<>(Arrays.asList("could you help me?", "yes"));
-        var embeddings2 = openAI.getEmbeddingForConversationFromOpenAI(ml2);
+        String message2 = "Need help to find a doctor.";
+        var embeddings2 = openAI.getEmbeddingForConversationFromOpenAI(message2);
 
         assertNotEquals(embeddings1, embeddings2);
     }
 
     @Test
     public void testSemanticMeaning() throws IOException {
-        ArrayList<String> ml1 = new ArrayList<>(Arrays.asList("King"));
-        var kingEmbedding = openAI.getEmbeddingForConversationFromOpenAI(ml1);
+        String ms1 = "King";
+        var kingEmbedding = openAI.getEmbeddingForConversationFromOpenAI(ms1);
 
-        ArrayList<String> ml2 = new ArrayList<>(Arrays.asList("Queen"));
-        var queenEmbedding = openAI.getEmbeddingForConversationFromOpenAI(ml2);
+        String ms2 = "Queen";
+        var queenEmbedding = openAI.getEmbeddingForConversationFromOpenAI(ms2);
 
-        ArrayList<String> ml3 = new ArrayList<>(Arrays.asList("Man"));
-        var manEmbedding = openAI.getEmbeddingForConversationFromOpenAI(ml3);
+        String ms3 = "Man";
+        var manEmbedding = openAI.getEmbeddingForConversationFromOpenAI(ms3);
 
-        ArrayList<String> ml4 = new ArrayList<>(Arrays.asList("Woman"));
-        var womanEmbedding = openAI.getEmbeddingForConversationFromOpenAI(ml4);
+        String ms4 = "Woman";
+        var womanEmbedding = openAI.getEmbeddingForConversationFromOpenAI(ms4);
 
         List<Float> result = subtractVectors(kingEmbedding, manEmbedding);
         result = addVectors(result, womanEmbedding);

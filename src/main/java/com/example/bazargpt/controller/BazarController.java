@@ -1,13 +1,13 @@
 package com.example.bazargpt.controller;
 
 import com.example.bazargpt.model.Conversation;
-import com.example.bazargpt.model.ConversationEmbedding;
 import com.example.bazargpt.model.Message;
 import com.example.bazargpt.model.User;
 import com.example.bazargpt.repository.ConversationEmbeddingRepository;
 import com.example.bazargpt.repository.ConversationRepository;
 import com.example.bazargpt.repository.MessageRepository;
 import com.example.bazargpt.repository.UserRepository;
+import com.example.bazargpt.service.EmbeddingService;
 import com.example.bazargpt.service.OpenAIWrapper;
 import com.example.bazargpt.service.UserService;
 
@@ -17,25 +17,34 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-record Person (String name, int age) {}
+record Person(String name, int age) {
+}
 
-record RegisterUserApiDTO (String email, String password, String firstName, String lastName) {}
+record RegisterUserApiDTO(String email, String password, String firstName, String lastName) {
+}
 
-record LoginUserApiDTO (String email, String password) {}
+record LoginUserApiDTO(String email, String password) {
+}
 
-record MessageDTO (String email, String message, Long conversationId) {}
-record ResponseDTO (String userMessage, String responseMessage, Long conversationId) {}
+record MessageDTO(String email, String message, Long conversationId) {
+}
 
-record ChatGetDTO(Long conversationId, ResponseDTO[] responseDTOArray) {}
-record ConversationDTO(Long conversationId, String conversationSummary) {}
+record ResponseDTO(String userMessage, String responseMessage, Long conversationId) {
+}
 
-record EmbeddingDTO(String userMessage, String responseMessage) {}
+record ChatGetDTO(Long conversationId, ResponseDTO[] responseDTOArray) {
+}
+
+record ConversationDTO(Long conversationId, String conversationSummary) {
+}
+
+record EmbeddingDTO(String userMessage, String responseMessage) {
+}
 
 @RestController
 public class BazarController {
@@ -53,10 +62,10 @@ public class BazarController {
     private UserService userService;
 
     @Autowired
-    private OpenAIWrapper openAIWrapper;
+    private ConversationEmbeddingRepository conversationEmbeddingRepo;
 
     @Autowired
-    private ConversationEmbeddingRepository conversationEmbeddingRepo;
+    private EmbeddingService embeddingService;
 
     @PostMapping("/register")
     public boolean register(RegisterUserApiDTO userDTO) {
@@ -81,14 +90,13 @@ public class BazarController {
 
     }
 
-
     @PostMapping("/chat")
     public ResponseDTO sendMessage(@RequestBody MessageDTO messageDTO) throws IOException {
         String userMessage = messageDTO.message();
-        System.out.println("Hassan 1 Salam");
+
         String responseMessage = userService.getResponse(userMessage);
+
         long conversationId;
-        System.out.println("Hassan 222 Salam");
         Conversation conversation = conversationRep.findByConversationId(messageDTO.conversationId());
 
         Message newMessage = new Message();
@@ -98,8 +106,7 @@ public class BazarController {
             conversationId = messageDTO.conversationId();
             newMessage.setConversation(conversation);
             messageRep.save(newMessage);
-        }
-        else {
+        } else {
             Conversation newConv = conversationRep.save(new Conversation());
             conversationId = newConv.getConversationId();
             newMessage.setConversation(newConv);
@@ -109,21 +116,19 @@ public class BazarController {
         return new ResponseDTO(userMessage, responseMessage, conversationId);
     }
 
-
-
     @GetMapping("/chat/{conversationId}")
-    public ChatGetDTO getMessage(@PathVariable(value="conversationId") Long conversationId) {
+    public ChatGetDTO getMessage(@PathVariable(value = "conversationId") Long conversationId) {
         var messages = messageRep.findMessagesByConversationId(conversationId);
 
 
-        ResponseDTO[] responseDTOArray = messages.stream().map(m -> { String messageContent = m.getContent();
+        ResponseDTO[] responseDTOArray = messages.stream().map(m -> {
+            String messageContent = m.getContent();
             String messageResponse = m.getResponse();
             ResponseDTO resDTO = new ResponseDTO(messageContent, messageResponse, conversationId);
             return resDTO;
         }).toArray(ResponseDTO[]::new);
 
         return new ChatGetDTO(conversationId, responseDTOArray);
-
     }
 
     @GetMapping("/conversations")
@@ -133,23 +138,9 @@ public class BazarController {
     }
 
     @GetMapping("/embedding/{conversationId}")
-    public List<Float> getEmbeddingForConversation(@PathVariable(value="conversationId") Long conversationId) {
+    public List<Float> getEmbeddingForConversation(@PathVariable(value = "conversationId") Long conversationId) throws IOException {
 
-        var messages = messageRep.findMessagesByConversationId(conversationId);
-
-        ArrayList<String> ml = new ArrayList<>();
-
-        for(var m : messages) {
-            ml.add(m.getContent());
-            ml.add(m.getResponse());
-        }
-        var embedding = openAIWrapper.getEmbeddingForConversationFromOpenAI(ml);
-
-        ConversationEmbedding convEmb = new ConversationEmbedding();
-        convEmb.setConversation(conversationRep.findByConversationId(conversationId));
-        convEmb.setEmbedding(embedding);
-
-        conversationEmbeddingRepo.save(convEmb);
+        var embedding = embeddingService.summarizeAConversation(conversationId);
 
         return embedding;
     }
@@ -160,30 +151,9 @@ public class BazarController {
         return embeddingsList.stream().map(e -> e.getEmbedding()).toList();
     }
 
-    @GetMapping("/summarize/{conversationId}")
-    public String getSummaryOfRequest(@PathVariable(value = "conversationId") Long conversationId) throws IOException {
-        var messages = messageRep.findMessagesByConversationId(conversationId);
-        ArrayList<String> messageList = new ArrayList<>();
-
-        for(var m : messages) {
-            messageList.add(m.getContent());
-            messageList.add(m.getResponse());
-        }
-
-        String joinedInput = String.join(" ", messageList);
-        String summary = userService.getResponse("Please summarize the following conversation: " + messageList);
-
-        return summary;
-    }
-
-
-
     @PostMapping("/greeting")
     public String greetingToTheUser(MessageDTO messageDTO) {
-        System.out.println("Hassan 333 Salam");
-
         return "Welcome " + messageDTO.email();
-
     }
 
 }
