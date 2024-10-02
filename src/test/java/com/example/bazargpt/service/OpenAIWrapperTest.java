@@ -61,6 +61,15 @@ class OpenAIWrapperTest {
         assertNearlyZero(result);
     }
 
+    @Test
+    public void testOpenAISummarizeAConversation() throws IOException {
+        ArrayList<String> ml1 = new ArrayList<>(Arrays.asList("What do you need?", "a shirt", "Which size?", "Large, for men", "which color?", "white"));
+        String joinedInput = String.join(" ", ml1);
+        String summary = openAI.getOpenAIResponse("Please summarize the following conversation in one sentences: " + ml1);
+
+        System.out.println(summary);
+    }
+
     private List<Float> subtractVectors(List<Float> vectorA, List<Float> vectorB) {
         List<Float> result = new ArrayList<>();
         for (int i = 0; i < vectorA.size(); i++) {
