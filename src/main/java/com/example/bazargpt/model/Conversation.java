@@ -11,7 +11,7 @@ public class Conversation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "conversation_id")
-    private long conversationId;
+    private Long conversationId;
 
     @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Message> messages;
@@ -29,7 +29,7 @@ public class Conversation {
         return conversationId;
     }
 
-    public void setConversationId(long conversationId) {
+    public void setConversationId(Long conversationId) {
         this.conversationId = conversationId;
     }
 
@@ -47,5 +47,13 @@ public class Conversation {
 
     public void setMessages(List<Message> messages) {
         this.messages = messages;
+    }
+
+    public ConversationEmbedding getConversationEmbedding() {
+        return conversationEmbedding;
+    }
+
+    public void setConversationEmbedding(ConversationEmbedding conversationEmbedding) {
+        this.conversationEmbedding = conversationEmbedding;
     }
 }

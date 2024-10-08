@@ -22,11 +22,11 @@ public class ConversationEmbedding {
     @JoinColumn(name="conversation_id")
     private Conversation conversation;
 
-    public Long getId() {
+    public Long getEmbeddingId() {
         return embeddingId;
     }
 
-    public void setId(Long id) {
+    public void setEmbeddingId(long id) {
         this.embeddingId = id;
     }
 

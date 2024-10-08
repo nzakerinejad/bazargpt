@@ -7,6 +7,7 @@ import com.example.bazargpt.repository.ConversationEmbeddingRepository;
 import com.example.bazargpt.repository.ConversationRepository;
 import com.example.bazargpt.repository.MessageRepository;
 import com.example.bazargpt.repository.UserRepository;
+import com.example.bazargpt.service.ConversationEmbeddingDTO;
 import com.example.bazargpt.service.EmbeddingService;
 import com.example.bazargpt.service.OpenAIWrapper;
 import com.example.bazargpt.service.UserService;
@@ -66,6 +67,7 @@ public class BazarController {
 
     @Autowired
     private EmbeddingService embeddingService;
+
 
     @PostMapping("/register")
     public boolean register(RegisterUserApiDTO userDTO) {
@@ -149,6 +151,13 @@ public class BazarController {
     public List<List<Float>> getAllEmbeddings() {
         var embeddingsList = conversationEmbeddingRepo.findAll();
         return embeddingsList.stream().map(e -> e.getEmbedding()).toList();
+    }
+
+    @GetMapping("/findNearestVector/{conversationId}")
+    public ConversationEmbeddingDTO findMatching(@PathVariable(value = "conversationId") Long conversationId) {
+        ConversationEmbeddingDTO match = embeddingService.findNearestVectorID(conversationId);
+
+        return match;
     }
 
     @PostMapping("/greeting")

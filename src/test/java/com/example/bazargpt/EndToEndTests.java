@@ -1,6 +1,10 @@
 package com.example.bazargpt;
 
+import com.example.bazargpt.model.Conversation;
+import com.example.bazargpt.model.ConversationEmbedding;
 import com.example.bazargpt.model.User;
+import com.example.bazargpt.repository.ConversationEmbeddingRepository;
+import com.example.bazargpt.repository.ConversationRepository;
 import com.example.bazargpt.service.OpenAIWrapper;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
@@ -33,6 +37,12 @@ public class EndToEndTests {
 
     @MockBean
     private OpenAIWrapper openAIWrapperMock;
+
+    @MockBean
+    private ConversationRepository conversationRep;
+
+    @MockBean
+    private ConversationEmbeddingRepository conversationEmbeddingRepo;
 
     @Test
     public void testRegisteredUSerCanLogin() throws Exception {
@@ -193,6 +203,47 @@ public class EndToEndTests {
         assertEquals(expected, allEmbeddingsList.get(0));
 
     }
+
+    @Test
+    public void testFindNearestItemToARequest() throws Exception {
+        long conversationId = 1L;
+        List<Float> vector1 = List.of(1f, 4f, 3f);
+        List<Float> vector2 = List.of(0f, 5f, 7f);
+
+        ConversationEmbedding convEmb = new ConversationEmbedding();
+        convEmb.setEmbedding(vector1);
+
+        Conversation conversation = new Conversation();
+        conversation.setConversationEmbedding(convEmb);
+        conversation.setConversationId(conversationId);
+
+        when(conversationRep.findByConversationId(conversationId)).thenReturn(conversation);
+
+        ConversationEmbedding embed1 = new ConversationEmbedding();
+        embed1.setEmbeddingId(1);
+        embed1.setEmbedding(vector1);
+
+        ConversationEmbedding embed2 = new ConversationEmbedding();
+        embed2.setEmbeddingId(2);
+        embed2.setEmbedding(vector2);
+
+        when(conversationEmbeddingRepo.findAll()).thenReturn(List.of(embed1, embed2));
+
+        var nearestVector = mockMvc.perform(get("/findNearestVector/{conversationId}", Long.toString(conversationId)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // Parse the JSON response to get the vector result
+        String jsonResponse = nearestVector.getResponse().getContentAsString();
+
+        var result = JsonPath.read(jsonResponse, "$.embeddingVector");
+
+        String expectedString = vector1.toString().replaceAll("\\s+", "");
+        String resultString = result.toString().replaceAll("\\s+", "");
+        assertEquals(expectedString, resultString, "The nearest vector should match the expected vector");
+
+    }
+
 
     private static Integer readConversationId(MvcResult mockConversation) throws UnsupportedEncodingException {
         return JsonPath.read(mockConversation.getResponse().getContentAsString(), "$.conversationId");
