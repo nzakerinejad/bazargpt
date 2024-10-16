@@ -7,9 +7,7 @@ import com.example.bazargpt.repository.ConversationEmbeddingRepository;
 import com.example.bazargpt.repository.ConversationRepository;
 import com.example.bazargpt.repository.MessageRepository;
 import com.example.bazargpt.repository.UserRepository;
-import com.example.bazargpt.service.ConversationEmbeddingDTO;
 import com.example.bazargpt.service.EmbeddingService;
-import com.example.bazargpt.service.OpenAIWrapper;
 import com.example.bazargpt.service.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -154,10 +152,10 @@ public class BazarController {
     }
 
     @GetMapping("/findNearestVector/{conversationId}")
-    public ConversationEmbeddingDTO findMatching(@PathVariable(value = "conversationId") Long conversationId) {
-        ConversationEmbeddingDTO match = embeddingService.findNearestVectorID(conversationId);
+    public long findMatching(@PathVariable(value = "conversationId") Long conversationId) {
+        return embeddingService.findNearestVectorID(conversationId);
 
-        return match;
+
     }
 
     @PostMapping("/greeting")

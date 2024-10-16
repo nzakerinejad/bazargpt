@@ -53,25 +53,29 @@ public class EmbeddingService {
         return embedding;
     }
 
-    public ConversationEmbeddingDTO findNearestVectorID(Long conversationId) {
+    public Long findNearestVectorID(Long conversationId) {
         Conversation conversation = conversationRep.findByConversationId(conversationId);
         ConversationEmbedding convEmb = conversation.getConversationEmbedding();
 
-        List<ConversationEmbeddingDTO> embeddingsList = conversationEmbeddingRepo.findAll().stream().map(e -> new ConversationEmbeddingDTO(e.getEmbeddingId(), e.getEmbedding())).toList();
-        return findClosestVector(embeddingsList, convEmb.getEmbedding());
+        List<EmbeddingIdPair> embeddingsList = conversationEmbeddingRepo.findAll().stream().map(e -> new EmbeddingIdPair(e.getEmbeddingId(), e.getEmbedding())).toList();
+        var match = findClosestVector(embeddingsList, new EmbeddingIdPair(convEmb.getEmbeddingId(), convEmb.getEmbedding()));
+        return conversationEmbeddingRepo.findByEmbeddingId(match.embeddingId()).getConversation().getConversationId();
 
     }
 
-    private ConversationEmbeddingDTO findClosestVector(List<ConversationEmbeddingDTO> embeddingsList, List<Float> targetVector) {
+    private EmbeddingIdPair findClosestVector(List<EmbeddingIdPair> embeddingsList, EmbeddingIdPair targetVector) {
         double minDistance = Double.MAX_VALUE;
-        ConversationEmbeddingDTO closestVector = new ConversationEmbeddingDTO(null, null);
+        EmbeddingIdPair closestVector = new EmbeddingIdPair(null, null);
 
-        for (ConversationEmbeddingDTO vector : embeddingsList) {
-            double distance = euclideanDistance(vector.getEmbeddingVector(), targetVector);
-            if (distance < minDistance) {
-                minDistance = distance;
-                closestVector = vector;
+        for (EmbeddingIdPair vector : embeddingsList) {
+            if (vector.embeddingId != targetVector.embeddingId) {
+                double distance = euclideanDistance(vector.embedding(), targetVector.embedding());
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestVector = vector;
+                }
             }
+
         }
 
         return closestVector;
@@ -83,5 +87,8 @@ public class EmbeddingService {
             sum += Math.pow(vector.get(i) - targetVector.get(i), 2);
         }
         return Math.sqrt(sum);
+    }
+
+    private record EmbeddingIdPair(Long embeddingId, List<Float> embedding) {
     }
 }
