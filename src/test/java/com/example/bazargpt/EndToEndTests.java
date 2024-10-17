@@ -38,12 +38,6 @@ public class EndToEndTests {
     @MockBean
     private OpenAIWrapper openAIWrapperMock;
 
-//    @MockBean
-//    private ConversationRepository conversationRep;
-//
-//    @MockBean
-//    private ConversationEmbeddingRepository conversationEmbeddingRepo;
-
     @Test
     public void testRegisteredUSerCanLogin() throws Exception {
         User user = new User();
@@ -243,18 +237,6 @@ public class EndToEndTests {
         return convId;
 
     }
-
-
-//        String jsonResponse = nearestVector.getResponse().getContentAsString();
-//
-//        var result = JsonPath.read(jsonResponse, "$.embeddingVector");
-//
-//        String expectedString = vector1.toString().replaceAll("\\s+", "");
-//        String resultString = result.toString().replaceAll("\\s+", "");
-//        assertEquals(expectedString, resultString, "The nearest vector should match the expected vector");
-//
-//    }
-//
 
     private static Integer readConversationId(MvcResult mockConversation) throws UnsupportedEncodingException {
         return JsonPath.read(mockConversation.getResponse().getContentAsString(), "$.conversationId");
